@@ -1,91 +1,75 @@
-# CSV -> Auto Dashboard (Data -> Insight)
+# CSV Insight Dashboard
 
-Frontend-only analytics app that turns a CSV file into an instant dashboard with summaries, auto charts, filters, grouping, and a virtualized table.
+Interactive, client-side CSV analytics dashboard built with React + TypeScript.
 
-## Stack
+Upload a CSV and get instant profiling, filters, charts, and a paginated data table without sending data to a backend.
 
-- React + TypeScript + Vite
-- Zustand (state + memoized selectors)
-- PapaParse (CSV parsing)
-- Recharts (charts)
-- react-window (virtualized table)
-- dayjs (date handling)
-- Vitest + React Testing Library (tests)
-- ESLint + Prettier + Tailwind CSS
+## Highlights
 
-## Run
+- Local CSV upload and sample dataset mode
+- Smart column profiling (`number`, `date`, `string`, `boolean`, `id-like`)
+- Auto-generated summary cards and insight charts
+- Filter system with:
+  - Global search
+  - Date range filter
+  - Category checkbox list with `Select all` / partial / none states
+  - Numeric range
+  - Interactive chart selection
+- Saved views (save/apply/delete/export/import)
+- Dataset reset flow with confirmation modal
+- Light/Dark theme toggle
+
+## Tech Stack
+
+- React 19 + TypeScript
+- Vite
+- Zustand
+- Recharts
+- Day.js
+- Tailwind CSS
+- Vitest + React Testing Library
+
+## Getting Started
+
+### 1. Install
 
 ```bash
 npm install
+```
+
+### 2. Run in development
+
+```bash
 npm run dev
+```
+
+### 3. Build for production
+
+```bash
+npm run build
+```
+
+### 4. Run tests
+
+```bash
 npm run test
 ```
 
-## Features
+## Project Structure
 
-- Drag-and-drop CSV import + file picker
-- Progress indicator while parsing
-- Friendly parse errors
-- Last dataset persisted in localStorage (full if small, sample if large)
-- Sample dataset mode (`src/assets/sample.csv`)
-- Auto data profiling per column:
-  - `number`, `date`, `string`, `boolean`, `id-like`
-  - numeric stats: min, max, mean, median, p95, variance, missing
-  - date stats: min/max range, parse success rate, missing
-  - string stats: unique count + top values
-- Insight engine that auto-generates:
-  - summary cards
-  - up to 6 prioritized charts
-- Global filters:
-  - date range
-  - category multi-select
-  - numeric range
-  - debounced global search
-- Grouping controls (`groupBy`, `metric`, `aggregation`) with main chart override
-- Virtualized data table with sorting + per-column contains filters
-- Views in localStorage:
-  - save/apply/delete
-  - export/import JSON
-  - reset view
-- Light theme by default + theme switcher (light/dark)
+- `/src/app` - app shell and routes
+- `/src/components` - UI blocks (cards, filters, table, chart wrappers)
+- `/src/domain` - CSV parsing, profiling, insights, filtering/grouping logic
+- `/src/state` - Zustand store and selectors
+- `/src/storage` - localStorage persistence and view migration
+- `/src/tests` - unit/integration tests
 
-## How Auto Insights Pick Charts
+## Notes
 
-The insight engine inspects profiled columns and renders charts in priority order:
+- Data processing is fully browser-side.
+- Last dataset and saved views are persisted in `localStorage`.
+- For very large files, the app stores a capped dataset payload for persistence.
 
-1. Time series if at least one `date` + one `number` column exists.
-2. Top categories bar chart if `string` + `number` exists.
-3. Histogram for the most interesting numeric column (highest variance).
-4. Boolean distribution chart when a boolean column exists.
-5. Scatter chart for the first two numeric columns (capped sample).
+---
 
-It renders up to 6 charts total.
-
-## View Data Model
-
-Each saved view stores dashboard behavior (not dataset rows):
-
-```ts
-type ViewConfig = {
-  id: string;
-  name: string;
-  filters: FilterState;
-  grouping: GroupingConfig;
-  chartOrder: string[];
-};
-```
-
-Views are persisted in localStorage and can be shared via JSON export/import.
-
-## Performance Approach and Tradeoffs
-
-- CSV parsing uses PapaParse with worker mode when available.
-- Filtering and insight recomputation are centralized in Zustand and recalculated only on state changes.
-- Global text search is debounced (400ms).
-- Raw table rows are virtualized with `react-window`.
-
-Tradeoffs:
-
-- No backend means memory usage depends on browser limits.
-- Very large CSV files may still need incremental UX optimizations beyond the current MVP.
-- Current ID-like detection is heuristic and may classify edge columns differently for unusual datasets.
+Created by **Azamat Altymyshev**.
