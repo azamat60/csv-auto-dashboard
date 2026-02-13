@@ -53,6 +53,25 @@ export default function App() {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
+  useEffect(() => {
+    if (!showDeleteDatasetModal) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowDeleteDatasetModal(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showDeleteDatasetModal]);
+
   const hasData = headers.length > 0;
   const visibleCharts = useMemo(
     () => (mainChart ? [mainChart, ...charts] : charts),
@@ -341,8 +360,14 @@ export default function App() {
         </main>
 
         {showDeleteDatasetModal && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm"
+            onClick={() => setShowDeleteDatasetModal(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+              onClick={(event) => event.stopPropagation()}
+            >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 rounded-lg bg-rose-100 p-2 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
                   <AlertTriangle className="h-5 w-5" />
