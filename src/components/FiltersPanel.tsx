@@ -34,7 +34,15 @@ export function FiltersPanel({
   onReset,
 }: FiltersPanelProps) {
   const [search, setSearch] = useState(filters.search);
+  const [prevSearchProp, setPrevSearchProp] = useState(filters.search);
   const selectAllRef = useRef<HTMLInputElement>(null);
+
+  if (filters.search !== prevSearchProp) {
+    setPrevSearchProp(filters.search);
+    if (filters.search !== search) {
+      setSearch(filters.search);
+    }
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -42,10 +50,6 @@ export function FiltersPanel({
     }, 400);
     return () => clearTimeout(timer);
   }, [search, onPatchFilters]);
-
-  useEffect(() => {
-    setSearch(filters.search);
-  }, [filters.search]);
 
   const categoryOptions = useMemo(
     () => categoryValues.slice(0, 60),
@@ -66,8 +70,7 @@ export function FiltersPanel({
   ]);
 
   const allCategorySelected =
-    categoryOptions.length === 0 ||
-    (filters.categoryMode ?? "all") === "all";
+    categoryOptions.length === 0 || (filters.categoryMode ?? "all") === "all";
   const noneCategorySelected = (filters.categoryMode ?? "all") === "none";
   const partialCategorySelection =
     selectedCategoryValues.length > 0 &&
@@ -282,7 +285,8 @@ export function FiltersPanel({
                             type="checkbox"
                             className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                             checked={
-                              allCategorySelected || selectedCategoryValues.includes(value)
+                              allCategorySelected ||
+                              selectedCategoryValues.includes(value)
                             }
                             onChange={() => toggleCategoryValue(value)}
                           />
